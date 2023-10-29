@@ -1,4 +1,4 @@
-const shp2geojson = require('shp2geojson');
+const shapefile = require('shapefile');
 const fs = require('fs');
 const path = require('path');
 
@@ -20,11 +20,15 @@ shpFiles.forEach(shpFile => {
     const geojsonFileName = path.basename(shpFile, '.shp') + '.geojson';
     const geojsonFilePath = path.join(outputGeojsonFolder, geojsonFileName);
 
-    shp2geojson.shp(shpFilePath, geojsonFilePath, (err) => {
-        if (err) {
+    shapefile.read(shpFilePath)
+      .then(geojson => {
+        fs.writeFile(geojsonFilePath, JSON.stringify(geojson), (err) => {
+          if(err) {
             console.error(`Gagal mengonversi ${shpFile}: ${err}`);
-        } else {
+          } else {
             console.log(`Berhasil mengonversi ${shpFile} ke ${geojsonFileName}`);
-        }
-    });
+          }
+        });
+      })
+      .catch(error => console.error(error.stack));
 });
